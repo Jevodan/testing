@@ -3,10 +3,8 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 /**
- * Калькулятор умеет выполнять операции сложения, вычитания, умножения и деления с двумя и более числами: a + b -c * d
- * Невнимательно прочитал первый пункт и сделал с более,чем одним оператором...
+ * Калькулятор умеет выполнять операции сложения, вычитания, умножения и деления с двумя  числами
  */
-
 
 public class Test {
 
@@ -14,50 +12,61 @@ public class Test {
 
         Scanner scan = new Scanner(System.in);
         Boolean classic;        // определяет систему счисления
-        String result = "";     // итоговый результат
-        ArrayList matSymbols;   // массив операторов заданного выражения
-        ArrayList elements;     // массив операндов заданного выражения
-        String[] symb = new String[]{"*", "/", "+"}; // массив операторов последовательности вычисления, сначала */ , затем по порядку выражения +-
+        String result;     // итоговый результат
+        String symbol;  //оператор
+        String[] symb = new String[]{"*", "/", "+", "-"}; // массив операторов последовательности вычисления, сначала */ , затем по порядку выражения +-
         System.out.print("Калькулятор на связи: ");
         String line = scan.nextLine();
         line = getClear(line);
+        ArrayList elements = new ArrayList(Arrays.asList(line.split("[*/+-]"))); // массив операндов заданного выражения
+        if (elements.size() != 2) {
+            throw new Exception("формат математической операции не удовлетворяет заданию - два операнда и один оператор");
+        }
         try {
             checkSystem(line);
         } catch (Exception e) {
             System.out.println(e + "используются одновременно разные системы счисления");
+            System.exit(0);
         }
         classic = getRomeOrClassic(line);
-        if (classic)
-            matSymbols = new ArrayList(Arrays.asList(line.split("10|0|1|2|3|4|5|6|7|8|9")));
-        else
-            matSymbols = new ArrayList(Arrays.asList(line.split("II|III|I|IV|V|VI|VII|VIII|IX|X")));
-
-        matSymbols.removeAll(Arrays.asList("", null));
-        elements = new ArrayList(Arrays.asList(line.split("[*/+-]")));
-
-        if (elements.size() < 1 || matSymbols.size() == 0)
+        symbol = getSymbol(line, symb);
+        if (elements.size() < 1 || symbol.equals(""))
             throw new Exception("строка не является математической операцией");
-
         if (!classic)
             romeToClassic(elements);
 
-        for (String syb : symb) {
-            getCalculation(matSymbols, elements, syb);
-        }
-
+        result = String.valueOf(getCalculation(symbol, elements));
         if (!classic) {
             try {
-                result = classicToRome(Integer.parseInt(String.valueOf(elements.get(0))));
+                result = classicToRome(Integer.valueOf(result));
             } catch (Exception e) {
                 System.out.println("В римской системе нет отрицательных чисел");
+                System.exit(0);
             }
-        } else
-            result = (String) elements.get(0);
+        }
+
         System.out.println("Результат: " + result);
+    }
+
+
+    private static String getSymbol(String line, String[] symb) throws Exception {
+
+        String symbol = "";
+        for (String sym : symb) {
+            if (line.indexOf(sym) > 0) {
+                if (symbol!="")
+                    throw new Exception("формат математической операции не удовлетворяет заданию - два операнда и один оператор");
+                symbol = sym;
+                if (line.indexOf(sym) != line.lastIndexOf(sym) && line.lastIndexOf(sym) != -1)
+                    throw new Exception("формат математической операции не удовлетворяет заданию - два операнда и один оператор");
+            }
+        }
+        return symbol;
     }
 
     /**
      * Проверка на систему исчисления
+     *
      * @param line
      * @throws Exception
      */
@@ -69,42 +78,104 @@ public class Test {
                     Character.getNumericValue(el) == 18) {
                 sum[0] = 1;
             }
-            if (Character.getNumericValue(el) < 10 && Character.getNumericValue(el) > 10) {
+            if (Character.getNumericValue(el) <= 10 && Character.getNumericValue(el) > 0) {
                 sum[1] = 1;
             }
         }
-
         if (sum[0] > 0 && sum[1] > 0)
             throw new Exception("");
-
-
     }
 
     /**
-     * Получение результата в римской системе
+     * Получение результата в римской системе*
+     *
      * @param res - результат в классической системе
-     * @return
-     * @throws Exception
      */
     private static String classicToRome(Integer res) throws Exception {
+        String letter = "";
         if (res > 0) {
-            String romeResult = "";
-            Integer[] ch = new Integer[]{1000, 500, 100, 50, 10, 5};
-            String[] letter = new String[]{"M", "D", "C", "L", "X", "V"};
-            for (int i = 0; i < ch.length; i++) {
-                while (res >= ch[i]) {
-                    res -= ch[i];
-                    romeResult += letter[i];
-                }
+
+            switch (res / 10) {
+                case (1):
+                    letter += "X";
+                    break;
+                case (2):
+                    letter += "XX";
+                    break;
+                case (3):
+                    letter += "XXX";
+                    break;
+                case (4):
+                    letter += "XL";
+                    break;
+                case (5):
+                    letter += "L";
+                    break;
+                case (6):
+                    letter += "LX";
+                    break;
+                case (7):
+                    letter += "LXX";
+                    break;
+                case (8):
+                    letter += "LXXX";
+                    break;
+                case (9):
+                    letter += "XC";
+                    break;
+                case (10):
+                    letter += "C";
+                    break;
+                default:
+                    letter += "";
+                    break;
             }
-            return romeResult;
+
+            switch (res % 10) {
+                case (1):
+                    letter += "I";
+                    break;
+                case (2):
+                    letter += "II";
+                    break;
+                case (3):
+                    letter += "III";
+                    break;
+                case (4):
+                    letter += "IV";
+                    break;
+                case (5):
+                    letter += "V";
+                    break;
+                case (6):
+                    letter += "VI";
+                    break;
+                case (7):
+                    letter += "VII";
+                    break;
+                case (8):
+                    letter += "VIII";
+                    break;
+                case (9):
+                    letter += "IX";
+                    break;
+                case (10):
+                    letter += "X";
+                    break;
+                default:
+                    letter += "";
+                    break;
+            }
+
         } else {
             throw new Exception("");
         }
+        return letter;
     }
 
     /**
      * Определение решения между римским и классическим
+     *
      * @param line
      * @return
      */
@@ -115,6 +186,7 @@ public class Test {
 
     /**
      * Конвертация римских чисел в классические
+     *
      * @param elements- массив элементов
      */
     private static void romeToClassic(ArrayList elements) {
@@ -133,53 +205,22 @@ public class Test {
 
     /**
      * Основные вычисления
-     * @param matSymbols- массив математических операторов
-     * @param elements- массив элементов
-     * @param syb
+     *
+     * @param symbol   - оператор
+     * @param elements -   массив элементов
      */
-    private static void getCalculation(ArrayList matSymbols, ArrayList<String> elements, String syb) {
+    private static int getCalculation(String symbol, ArrayList<String> elements) {
         int element;
-        if (syb.equals("+")) {
-            int index = 0;
-            while (index < matSymbols.size()) {
-                element = getElement(elements, index, (String) matSymbols.get(index));
-                elements.remove(index);
-                elements.remove(index);
-                elements.add(index, String.valueOf(element));
-                matSymbols.remove(index);
-            }
-        } else {
-            int index = matSymbols.indexOf(syb);
-            while (index != -1) {
-                element = getElement(elements, index, syb);
-                elements.remove(index);
-                elements.remove(index);
-                elements.add(index, String.valueOf(element));
-                matSymbols.remove(index);
-                index = matSymbols.indexOf(syb);
 
-            }
-        }
-
-    }
-
-    /**
-     * Совершение одной из четырех математической операции и возвращение результата
-     * @param elements - массив элементов
-     * @param index
-     * @param syb
-     * @return
-     */
-    private static int getElement(ArrayList<String> elements, int index, String syb) {
-        switch (syb) {
+        switch (symbol) {
             case ("*"):
-                return Integer.parseInt(String.valueOf(elements.get(index))) * Integer.parseInt(String.valueOf(elements.get(index + 1)));
+                return Integer.parseInt(String.valueOf(elements.get(0))) * Integer.parseInt(String.valueOf(elements.get(1)));
             case ("/"):
-                return Integer.parseInt(String.valueOf(elements.get(index))) / Integer.parseInt(String.valueOf(elements.get(index + 1)));
+                return Integer.parseInt(String.valueOf(elements.get(0))) / Integer.parseInt(String.valueOf(elements.get(1)));
             case ("+"):
-                return Integer.parseInt(String.valueOf(elements.get(index))) + Integer.parseInt(String.valueOf(elements.get(index + 1)));
+                return Integer.parseInt(String.valueOf(elements.get(0))) + Integer.parseInt(String.valueOf(elements.get(1)));
             case ("-"):
-                return Integer.parseInt(String.valueOf(elements.get(index))) - Integer.parseInt(String.valueOf(elements.get(index + 1)));
+                return Integer.parseInt(String.valueOf(elements.get(0))) - Integer.parseInt(String.valueOf(elements.get(1)));
             default:
                 break;
         }
@@ -188,6 +229,7 @@ public class Test {
 
     /**
      * Убирает все пробелы в изначальном уравнении
+     *
      * @param line - введенная пользователем строка
      * @return
      */

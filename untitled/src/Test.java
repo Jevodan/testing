@@ -54,7 +54,7 @@ public class Test {
         String symbol = "";
         for (String sym : symb) {
             if (line.indexOf(sym) > 0) {
-                if (symbol!="")
+                if (symbol != "")
                     throw new Exception("формат математической операции не удовлетворяет заданию - два операнда и один оператор");
                 symbol = sym;
                 if (line.indexOf(sym) != line.lastIndexOf(sym) && line.lastIndexOf(sym) != -1)
@@ -202,7 +202,6 @@ public class Test {
         elements.replaceAll(s -> s.equals("X") ? 10 : s);
     }
 
-
     /**
      * Основные вычисления
      *
@@ -226,7 +225,6 @@ public class Test {
         }
         return 0;
     }
-
     /**
      * Убирает все пробелы в изначальном уравнении
      *

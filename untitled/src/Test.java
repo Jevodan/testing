@@ -40,7 +40,7 @@ public class Test {
         int el2=Integer.parseInt(String.valueOf(elements.get(1)));
         if (el1 < 0 || el1>10 || el2<0 || el2>10 )
             throw new Exception("Операнды должны быть больше нуля и меньше 10ти");
-
+ 
 
         result = String.valueOf(getCalculation(symbol, elements));
         if (!classic) {
